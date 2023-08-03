@@ -70,9 +70,12 @@ class MsgBox:
             for future in self._futures:
                 future.cancel()
             while self._q.not_empty:
-                msg = self._q.get(False)
-                if msg[1]:
-                    msg[1].cancel()
+                try:
+                    msg = self._q.get(False)
+                    if msg[1]:
+                        msg[1].cancel()
+                except:
+                    break
 
             self._futures.clear()
             self._stopped = True
