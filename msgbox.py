@@ -55,6 +55,7 @@ class MsgBox:
         self._stopped = False
         self._lock = threading.Lock()
         self._futures = []
+        self._handle = self.handle
 
     def _run(self):
         self._busy = True
@@ -78,7 +79,7 @@ class MsgBox:
             self._lock.release()
             return
 
-        future = self.exec.submit(self.handle, msg[0])
+        future = self.exec.submit(self._handle, msg[0])
         def l(_):
             self._busy = False
         def r(_):
@@ -117,6 +118,9 @@ class MsgBox:
 
     def handle(self, msg):
         pass
+
+    def become(self, f):
+        self._handle = f
 
     @classmethod
     def shutdown(cls):
