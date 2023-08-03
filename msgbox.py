@@ -17,13 +17,32 @@ class PoisonPill:
     pass
 
 
-def recurring_scheduler(interval, a, msg):
-    def _timer():
-        a.post(msg)
-        timer = threading.Timer(interval, _timer)
-        timer.start()
+class PeriodicTimer:
+    def __init__(self, interval, mbox, msg):
+        self._handle = None
+        self._cancelled = False
+        self._timer(interval, mbox, msg)
 
-    timer = threading.Timer(interval, _timer)
+    def _timer(self, interval, mbox, msg):
+        def __timer():
+            if self._cancelled:
+                return
+            mbox.post(self._msg)
+            self._handle = threading.Timer(interval, __timer)
+            self._handle.start()
+
+        __timer()
+
+    def stop(self):
+        self._cancelled = True
+        self._curr.cancel()
+
+
+def single_timer(delay, mbox, msg):
+    def _run():
+        mbox.post(msg)
+
+    timer = threading.Timer(delay, _run)
     timer.start()
 
 
